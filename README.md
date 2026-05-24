@@ -20,7 +20,7 @@ El objetivo de esta actividad es comparar de manera objetiva y técnica el desar
 - React Native con Expo
 - Flutter
 
-Ambas versiones deben consumir información desde una API REST, manejar datos en memoria durante la ejecución, mostrar listas dinámicas, permitir navegación entre pantallas, implementar operaciones CRUD simuladas localmente y utilizar un mecanismo formal de manejo de estado.
+Ambas versiones consumen información desde una API REST, manejan datos en memoria durante la ejecución, muestran listas dinámicas, permiten navegación entre pantallas, implementan operaciones CRUD simuladas localmente y utilizan un mecanismo formal de manejo de estado.
 
 ---
 
@@ -40,7 +40,7 @@ La aplicación mantiene los datos en memoria durante la ejecución, sin usar bas
 
 ## 3. Funcionalidades implementadas
 
-La aplicación incluye las siguientes funcionalidades:
+La aplicación incluye las siguientes funcionalidades en ambas tecnologías:
 
 | Funcionalidad | Descripción |
 |---|---|
@@ -56,7 +56,9 @@ La aplicación incluye las siguientes funcionalidades:
 | Consultar registros | Lista y detalla series obtenidas desde la API |
 | Actualizar registros | Modifica una serie existente en memoria |
 | Eliminar registros | Elimina una serie mediante un modal de confirmación |
-| Manejo de estado formal | React Native usa Context API + useReducer |
+| Buscador | Permite buscar series por título |
+| Filtros | Permite filtrar por género, estado e idioma |
+| Métricas internas | Muestra tiempo de respuesta API, cold start y registros en memoria |
 
 ---
 
@@ -67,7 +69,7 @@ Ambas aplicaciones siguen una organización basada en principios de arquitectura
 ### 4.1 Arquitectura propuesta
 
 ```txt
-src/
+src/ o lib/
 ├── application/
 │   ├── navigation/
 │   └── providers/
@@ -93,8 +95,7 @@ src/
 │           ├── components/
 │           ├── screens/
 │           └── state/
-│
-└── types/
+
 ```
 
 ### 4.2 Capas principales
@@ -105,7 +106,7 @@ src/
 | `core` | Constantes, tema visual, utilidades y funciones compartidas |
 | `features` | Módulos funcionales de la aplicación |
 | `data` | Obtención y transformación de datos externos |
-| `domain` | Entidades, contratos y casos de uso |
+| `domain` | Entidades, contratos, repositorios abstractos y casos de uso |
 | `presentation` | Pantallas, componentes visuales y manejo de estado |
 
 ---
@@ -125,7 +126,13 @@ src/
 
 ### Flutter
 
-- Pendiente de implementación
+- Flutter
+- Dart
+- Provider
+- ChangeNotifier
+- HTTP package
+- TVMaze API
+- Flutter build tools
 
 ---
 
@@ -160,9 +167,58 @@ ShowsProvider + showsReducer
 
 No se utiliza persistencia local en base de datos.
 
+### 6.3 CRUD local
+
+Las operaciones CRUD se realizan sobre el estado global de la aplicación:
+
+| Operación | Implementación |
+|---|---|
+| Consultar | Carga inicial desde TVMaze |
+| Crear | Inserción de un nuevo registro local al inicio de la lista |
+| Actualizar | Reemplazo del registro editado dentro del arreglo en memoria |
+| Eliminar | Eliminación del registro seleccionado desde el arreglo en memoria |
+
 ---
 
-## 7. Métricas de comparación
+## 7. Implementación en Flutter
+
+La versión de Flutter fue desarrollada con Dart siguiendo la misma lógica funcional y visual de la versión en React Native. Para el manejo de estado se utilizó Provider junto con ChangeNotifier.
+
+### 7.1 Pantallas principales
+
+| Pantalla | Descripción |
+|---|---|
+| `ShowsScreen` | Catálogo principal de series |
+| `ShowDetailScreen` | Detalle de una serie seleccionada |
+| `ShowFormScreen` | Creación y edición de series |
+| `MetricsScreen` | Visualización de métricas internas |
+
+### 7.2 Manejo de estado
+
+La aplicación utiliza un provider global encargado de manejar la lista de series, la carga de datos, los errores y las métricas internas.
+
+El estado se maneja mediante:
+
+```txt
+ShowsProvider + Provider + ChangeNotifier
+```
+
+No se utiliza persistencia local en base de datos.
+
+### 7.3 CRUD local
+
+Las operaciones CRUD también se realizan sobre la lista almacenada en memoria:
+
+| Operación | Implementación |
+|---|---|
+| Consultar | Carga inicial desde TVMaze |
+| Crear | Inserción de un nuevo registro local al inicio de la lista |
+| Actualizar | Reemplazo del registro editado dentro del arreglo en memoria |
+| Eliminar | Eliminación del registro seleccionado desde el arreglo en memoria |
+
+---
+
+## 8. Métricas de comparación
 
 Las métricas solicitadas para la comparación son:
 
@@ -174,7 +230,7 @@ Las métricas solicitadas para la comparación son:
 | Tiempo de compilación | Tiempo requerido para generar el build release |
 | Cold Start | Tiempo desde abrir la app cerrada hasta mostrar la primera pantalla funcional |
 
-Además, en la versión de React Native se agregó una métrica complementaria:
+Además, se agregó una métrica complementaria en ambas versiones:
 
 | Métrica complementaria | Descripción |
 |---|---|
@@ -182,22 +238,50 @@ Además, en la versión de React Native se agregó una métrica complementaria:
 
 ---
 
-## 8. Resultados de métricas - React Native Expo
+## 9. Resultados de métricas - React Native Expo
 
 | Métrica | Resultado | Método de medición |
 |---|---:|---|
 | Tiempo de respuesta API | 80 ms | Medición interna desde el inicio de la solicitud a TVMaze hasta la recepción de los datos y actualización del estado global |
 | Cold Start | 795.6 ms | Medición aproximada desde el inicio de la aplicación hasta que la primera pantalla funcional queda lista |
-| Registros en memoria | 39 registros | Cantidad de series cargadas y almacenadas en memoria mediante Context API y useReducer |
+| Registros en memoria | 40 registros | Cantidad de series cargadas y almacenadas en memoria mediante Context API y useReducer |
 | Tamaño final APK | 102 MB | Tamaño del archivo `.apk` generado por EAS Build en perfil `preview` |
 | Tiempo de compilación release | 21 min 22 s | Medido con EAS Build desde `Started at` hasta `Finished at` |
 | Fluidez de interfaz | Buena | Revisión manual del scroll, navegación, filtros, formularios y operaciones CRUD |
 
 ---
 
-## 9. Explicación detallada de las métricas en React Native
+## 10. Resultados de métricas - Flutter
 
-### 9.1 Tiempo de respuesta del API
+| Métrica | Resultado | Método de medición |
+|---|---:|---|
+| Tiempo de respuesta API | 1595 ms | Medición interna desde el inicio de la solicitud a TVMaze hasta la recepción de los datos y actualización del estado global |
+| Cold Start | 1596 ms | Medición aproximada desde el inicio de la aplicación hasta que la primera pantalla funcional queda lista |
+| Registros en memoria | 40 registros | Cantidad de series cargadas y almacenadas en memoria mediante Provider y ChangeNotifier |
+| Tamaño final APK | 46.4 MB | Tamaño del archivo `app-release.apk` generado con `flutter build apk --release` |
+| Tiempo de compilación release | 13.93 s | Medido con `Measure-Command { flutter build apk --release }` |
+| Fluidez de interfaz | Buena | Revisión manual del scroll, navegación, filtros, formularios y operaciones CRUD |
+
+---
+
+## 11. Tabla comparativa general
+
+| Métrica | React Native Expo | Flutter | Observación |
+|---|---:|---:|---|
+| Tamaño final APK | 102 MB | 46.4 MB | Flutter generó un APK más liviano en esta prueba |
+| Tiempo de respuesta API | 80 ms | 1595 ms | React Native registró menor tiempo interno de respuesta API |
+| Fluidez de interfaz | Buena | Buena | Ambas interfaces respondieron de forma estable |
+| Tiempo de compilación release | 21 min 22 s | 13.93 s | Flutter compiló mucho más rápido en la medición local |
+| Cold Start | 795.6 ms | 1596 ms | React Native registró menor tiempo aproximado de arranque |
+| Registros en memoria | 40 | 40 | Ambas versiones almacenan los datos en RAM |
+
+> Nota metodológica: las mediciones de compilación no se realizaron en condiciones idénticas. React Native fue compilado mediante EAS Build en la nube, mientras que Flutter fue compilado localmente con `flutter build apk --release`. Por esta razón, el tiempo de compilación debe interpretarse teniendo en cuenta el entorno usado para cada tecnología.
+
+---
+
+## 12. Explicación detallada de las métricas en React Native
+
+### 12.1 Tiempo de respuesta del API
 
 El tiempo de respuesta del API mide cuánto tarda la aplicación en solicitar los datos a TVMaze y dejarlos disponibles dentro del estado global de la aplicación.
 
@@ -240,7 +324,7 @@ Esta métrica permite comparar qué tan rápido cada tecnología obtiene y prepa
 
 ---
 
-### 9.2 Cold Start
+### 12.2 Cold Start
 
 El Cold Start mide el tiempo aproximado desde que la aplicación inicia hasta que la primera pantalla funcional está disponible para el usuario.
 
@@ -280,7 +364,7 @@ Esta medición es aproximada porque se calcula desde la lógica interna de la ap
 
 ---
 
-### 9.3 Registros en memoria
+### 12.3 Registros en memoria
 
 La métrica de registros en memoria indica cuántos elementos fueron cargados desde la API y mantenidos en RAM durante la ejecución de la aplicación.
 
@@ -309,14 +393,14 @@ registrosEnMemoria = estado.shows.length
 En la ejecución registrada, el resultado fue:
 
 ```txt
-Registros en memoria = 39 registros
+Registros en memoria = 40 registros
 ```
 
 Esto confirma que la aplicación mantiene los datos en memoria durante la ejecución y no depende de una base de datos local.
 
 ---
 
-### 9.4 Tamaño final del APK
+### 12.4 Tamaño final del APK
 
 El tamaño final del APK mide el peso del archivo instalable generado para Android.
 
@@ -356,7 +440,7 @@ Esta métrica permite comparar el peso final de la aplicación generada en React
 
 ---
 
-### 9.5 Tiempo de compilación release
+### 12.5 Tiempo de compilación release
 
 El tiempo de compilación release mide cuánto tarda el proceso de generación del archivo instalable de la aplicación.
 
@@ -407,7 +491,7 @@ Esta métrica representa el tiempo requerido para generar el archivo `.apk` inst
 
 ---
 
-### 9.6 Fluidez de interfaz
+### 12.6 Fluidez de interfaz
 
 La fluidez de interfaz se evaluó mediante revisión manual de las interacciones principales de la aplicación.
 
@@ -450,21 +534,269 @@ La aplicación respondió de forma estable durante el desplazamiento, navegació
 
 ---
 
-## 10. Tabla comparativa general
+## 13. Explicación detallada de las métricas en Flutter
 
-Esta tabla se completará cuando la versión de Flutter esté implementada y medida.
+### 13.1 Tiempo de respuesta del API
 
-| Métrica | React Native Expo | Flutter |
-|---|---:|---:|
-| Tamaño final APK/AAB | 102 MB | Pendiente |
-| Tiempo de respuesta API | 80 ms | Pendiente |
-| Fluidez de interfaz | Buena | Pendiente |
-| Tiempo de compilación release | 21 min 22 s | Pendiente |
-| Cold Start | 795.6 ms | Pendiente |
+El tiempo de respuesta del API en Flutter mide cuánto tarda la aplicación en solicitar los datos a TVMaze, recibirlos, transformarlos y almacenarlos dentro del estado global manejado por Provider.
+
+El proceso usado fue el siguiente:
+
+1. La aplicación inicia la carga de datos desde `ShowsProvider`.
+2. Antes de ejecutar la solicitud HTTP, se toma una marca de tiempo inicial usando la función auxiliar `nowMs()`.
+3. Luego se ejecuta el caso de uso `GetShows`.
+4. El caso de uso llama al repositorio.
+5. El repositorio llama al datasource remoto.
+6. El datasource remoto realiza la solicitud HTTP a:
+
+```txt
+https://api.tvmaze.com/shows
+```
+
+7. Cuando la respuesta llega correctamente, los datos JSON se decodifican.
+8. Cada registro se transforma desde `ShowModel` hacia la entidad interna `Show`.
+9. Una vez recibidos y transformados los datos, se toma una segunda marca de tiempo.
+10. La diferencia entre ambas marcas corresponde al tiempo de respuesta API.
+11. El valor se almacena en el provider y se presenta en `MetricsScreen`.
+
+El algoritmo usado puede resumirse así:
+
+```txt
+inicio = nowMs()
+datos = solicitarDatosATVMaze()
+series = transformarDatos(datos)
+fin = nowMs()
+
+tiempoRespuestaAPI = fin - inicio
+```
+
+En la ejecución registrada, el resultado fue:
+
+```txt
+Tiempo de respuesta API = 1595 ms
+```
 
 ---
 
-## 11. Comandos principales - React Native
+### 13.2 Cold Start
+
+El Cold Start en Flutter mide el tiempo aproximado desde que se crea el provider principal hasta que la primera pantalla funcional queda lista con los datos cargados.
+
+El proceso usado fue el siguiente:
+
+1. Al crear `ShowsProvider`, se toma una marca de tiempo inicial llamada `_appStartedAt`.
+2. Se inicia la aplicación mediante `runApp`.
+3. Se monta la estructura principal de la aplicación.
+4. Se registra el provider dentro de `AppProviders`.
+5. Se ejecuta `loadShows()` como carga inicial.
+6. Se solicita la información a la API de TVMaze.
+7. Se transforman los registros recibidos.
+8. Se almacenan las series en memoria dentro del provider.
+9. Al finalizar la carga inicial, se toma una segunda marca de tiempo.
+10. La diferencia entre esa segunda marca y `_appStartedAt` se registra como Cold Start aproximado.
+
+El algoritmo usado puede resumirse así:
+
+```txt
+appStartedAt = nowMs()
+
+iniciarAplicacion()
+crearProvider()
+solicitarDatosAPI()
+guardarDatosEnEstado()
+primeraPantallaFuncional = nowMs()
+
+coldStart = primeraPantallaFuncional - appStartedAt
+```
+
+En la ejecución registrada, el resultado fue:
+
+```txt
+Cold Start = 1596 ms
+```
+
+Esta medición es aproximada, ya que se calcula desde la lógica interna de la aplicación. Aun así, sirve para comparar ambas versiones bajo un criterio similar.
+
+---
+
+### 13.3 Registros en memoria
+
+La métrica de registros en memoria indica cuántas series fueron cargadas y guardadas en RAM durante la ejecución de la app Flutter.
+
+El proceso usado fue el siguiente:
+
+1. La aplicación solicita los datos a TVMaze.
+2. La respuesta entrega una lista de series.
+3. La implementación toma una cantidad limitada de registros para mantener el catálogo controlado.
+4. Los registros se transforman a entidades `Show`.
+5. La lista resultante se asigna al estado interno de `ShowsProvider`.
+6. La pantalla de métricas lee `provider.shows.length`.
+7. Ese valor se muestra como `Items in Memory`.
+
+El algoritmo usado puede resumirse así:
+
+```txt
+datosAPI = solicitarDatosATVMaze()
+series = transformarDatos(datosAPI)
+provider.shows = series
+
+registrosEnMemoria = provider.shows.length
+```
+
+En la ejecución registrada, el resultado fue:
+
+```txt
+Registros en memoria = 40 registros
+```
+
+---
+
+### 13.4 Tamaño final del APK
+
+El tamaño final del APK en Flutter mide el peso del archivo instalable generado para Android.
+
+El proceso usado fue el siguiente:
+
+1. Desde la carpeta `showly-flutter`, se ejecutó el comando:
+
+```powershell
+flutter build apk --release
+```
+
+2. Flutter generó el APK release.
+3. El archivo fue ubicado en la ruta:
+
+```txt
+showly-flutter/build/app/outputs/flutter-apk/app-release.apk
+```
+
+4. Se abrió la ventana de propiedades del archivo en Windows.
+5. En la propiedad `Tamaño`, Windows mostró el peso del APK.
+6. Ese valor se registró como tamaño final de la aplicación Flutter.
+
+El procedimiento puede resumirse así:
+
+```txt
+ejecutar flutter build apk --release
+ubicar app-release.apk
+abrir propiedades del archivo
+leer tamaño del archivo
+registrar tamaño en MB
+```
+
+El resultado obtenido fue:
+
+```txt
+Tamaño final APK = 46.4 MB
+```
+
+---
+
+### 13.5 Tiempo de compilación release
+
+El tiempo de compilación release en Flutter mide cuánto tarda el proceso local de generación del APK.
+
+El proceso usado fue el siguiente:
+
+1. Desde la carpeta `showly-flutter`, se ejecutó el comando en PowerShell:
+
+```powershell
+Measure-Command { flutter build apk --release }
+```
+
+2. PowerShell inició la medición del tiempo.
+3. Flutter ejecutó el proceso de compilación release.
+4. Al finalizar el build, PowerShell mostró la duración total.
+5. Se tomó el valor `TotalSeconds` como métrica de compilación.
+
+El resultado mostrado fue:
+
+```txt
+TotalSeconds: 13.9251959
+```
+
+El resultado se reportó redondeado como:
+
+```txt
+Tiempo de compilación release = 13.93 s
+```
+
+> Nota: esta medición corresponde a una ejecución local posterior, con dependencias y caché de Gradle ya preparadas. Por ello, puede ser menor que un primer build completamente limpio.
+
+---
+
+### 13.6 Fluidez de interfaz
+
+La fluidez de interfaz en Flutter se evaluó mediante revisión manual de las interacciones principales, usando el mismo criterio aplicado a la versión de React Native.
+
+El proceso de evaluación fue el siguiente:
+
+1. Se abrió la aplicación Flutter.
+2. Se verificó la carga inicial del catálogo.
+3. Se probó el scroll vertical en la lista de series.
+4. Se revisó la estabilidad visual de las tarjetas.
+5. Se abrió la pantalla de detalle de varias series.
+6. Se regresó desde el detalle hacia la pantalla principal.
+7. Se utilizó el buscador por título.
+8. Se probaron los filtros desplegables de género, estado e idioma.
+9. Se abrió el formulario de creación de serie.
+10. Se creó un nuevo registro local.
+11. Se editó un registro existente.
+12. Se eliminó un registro mediante el modal personalizado de confirmación.
+13. Se observó si había bloqueos, saltos visuales, lentitud o errores.
+
+El procedimiento puede resumirse así:
+
+```txt
+probar scroll
+probar navegación
+probar búsqueda
+probar filtros
+probar creación
+probar edición
+probar eliminación
+observar estabilidad visual y respuesta de la interfaz
+```
+
+El resultado cualitativo fue:
+
+```txt
+Fluidez de interfaz = Buena
+```
+
+La aplicación respondió de forma estable durante las interacciones principales.
+
+---
+
+## 14. Análisis comparativo
+
+### 14.1 Tamaño final del APK
+
+En esta prueba, Flutter generó un APK de **46.4 MB**, mientras que React Native Expo generó un APK de **102 MB**. Esto muestra que la versión de Flutter resultó más liviana en el archivo instalable final. La diferencia puede estar relacionada con el tipo de build generado, las dependencias incluidas por Expo y el empaquetado propio de cada tecnología.
+
+### 14.2 Tiempo de respuesta API
+
+React Native registró un tiempo de respuesta API de **80 ms**, mientras que Flutter registró **1595 ms**. En esta medición específica, React Native obtuvo un tiempo considerablemente menor. Sin embargo, esta métrica puede verse afectada por factores externos como la conexión de red, caché, momento exacto de la solicitud, carga del servicio remoto y entorno de ejecución. Por ello, para una comparación más robusta, lo ideal sería repetir la medición varias veces y calcular un promedio.
+
+### 14.3 Cold Start
+
+React Native registró un Cold Start aproximado de **795.6 ms**, mientras que Flutter registró **1596 ms**. Según estas mediciones internas, React Native inició más rápido hasta llegar a la primera pantalla funcional. Sin embargo, ambas mediciones son aproximadas porque fueron calculadas desde la lógica interna de cada aplicación, no mediante herramientas externas de profiling.
+
+### 14.4 Tiempo de compilación release
+
+Flutter registró un tiempo de compilación release de **13.93 segundos** en una ejecución local posterior con caché preparada. React Native Expo registró **21 minutos y 22 segundos** mediante EAS Build en la nube. La diferencia es significativa, pero debe interpretarse con cuidado porque no se midieron bajo el mismo entorno: Flutter se compiló localmente y React Native se compiló remotamente con EAS.
+
+### 14.5 Fluidez de interfaz
+
+Ambas aplicaciones obtuvieron una evaluación cualitativa de **buena**. En las dos versiones, el scroll del catálogo, la navegación entre pantallas, el uso del buscador, los filtros, los formularios y las operaciones CRUD respondieron de forma estable durante la revisión manual.
+
+### 14.6 Registros en memoria
+
+React Native cargó **40 registros** y Flutter cargó **40 registros**. En ambos casos, los datos se almacenan en memoria durante la ejecución y no se utiliza base de datos local.
+
+---
+
+## 15. Comandos principales - React Native
 
 ### Instalar dependencias
 
@@ -498,20 +830,50 @@ npx eas build:list
 
 ---
 
-## 12. Estado actual del proyecto
+## 16. Comandos principales - Flutter
 
-| Plataforma | Estado |
-|---|---|
-| React Native Expo | Implementado |
-| Flutter | Pendiente |
-| Comparación final | Pendiente |
+### Instalar dependencias
+
+```powershell
+flutter pub get
+```
+
+### Ejecutar en desarrollo
+
+```powershell
+flutter run
+```
+
+### Generar build release Android
+
+```powershell
+flutter build apk --release
+```
+
+### Medir tiempo de compilación release
+
+```powershell
+Measure-Command { flutter build apk --release }
+```
+
+### Ruta del APK generado
+
+```txt
+showly-flutter/build/app/outputs/flutter-apk/app-release.apk
+```
 
 ---
 
-## 13. Conclusión parcial
+## 17. Conclusiones
 
-La implementación de **Showly en React Native con Expo** permitió construir una aplicación visual, funcional y organizada mediante arquitectura limpia. La aplicación consume datos desde una API REST pública, mantiene los registros en memoria, permite navegar entre pantallas y ejecuta operaciones CRUD simuladas localmente.
+Después de implementar **Showly** en React Native con Expo y en Flutter, se pudo comprobar que ambas tecnologías permiten desarrollar una aplicación móvil funcional, visualmente atractiva y organizada bajo una arquitectura limpia. Las dos versiones cumplieron con los requisitos principales: consumo de API REST, manejo de datos en memoria, visualización de listas dinámicas, navegación entre pantallas, operaciones CRUD simuladas localmente y uso de un mecanismo formal de estado.
 
-A nivel de métricas, la versión de React Native obtuvo un tiempo de respuesta API de **80 ms**, un Cold Start aproximado de **795.6 ms**, un tamaño final de APK de **102 MB** y un tiempo de compilación release de **21 minutos y 22 segundos** usando EAS Build. La fluidez de la interfaz fue evaluada manualmente y se consideró buena durante las operaciones principales.
+En cuanto al **tamaño final del APK**, Flutter obtuvo un resultado más favorable, generando un archivo de **46.4 MB** frente a los **102 MB** de React Native Expo. Esto indica que, bajo las condiciones de esta prueba, Flutter produjo una aplicación más liviana para Android.
 
-La comparación completa se realizará una vez se implemente la versión equivalente en Flutter, usando las mismas funcionalidades y criterios de medición.
+Respecto al **tiempo de respuesta del API** y el **Cold Start**, React Native obtuvo mejores resultados en las mediciones internas realizadas, con **80 ms** para el consumo API y **795.6 ms** para el arranque aproximado. Flutter registró **1595 ms** para el consumo API y **1596 ms** para Cold Start. Sin embargo, estas métricas pueden variar según la red, el dispositivo, la caché, el entorno de ejecución y el momento de la medición.
+
+En el **tiempo de compilación release**, Flutter mostró un tiempo mucho menor: **13.93 segundos** frente a los **21 minutos y 22 segundos** registrados en React Native Expo mediante EAS Build. No obstante, esta comparación debe interpretarse con cuidado, ya que Flutter fue medido localmente y React Native fue medido en un proceso remoto de EAS Build.
+
+En términos de **fluidez de interfaz**, ambas aplicaciones ofrecieron una experiencia estable. El scroll, la navegación, los filtros, el buscador, los formularios y las operaciones CRUD funcionaron correctamente en las dos versiones.
+
+En conclusión, **Flutter destacó por generar un APK más pequeño y por un proceso de compilación local más rápido**, mientras que **React Native Expo mostró mejores tiempos internos en la carga inicial de datos y arranque aproximado durante esta prueba**. La elección entre ambas tecnologías dependerá del contexto del proyecto: Flutter puede ser conveniente cuando se busca mayor control del paquete final y consistencia visual, mientras que React Native con Expo resulta atractivo para equipos con experiencia previa en JavaScript/TypeScript y un flujo de desarrollo rápido apoyado en el ecosistema de Expo.
