@@ -36,13 +36,13 @@ export function MetricsScreen() {
 
       <MetricCard
         label="Final APK/AAB size"
-        value="Pending"
+        value="102 MB"
         helper="Fill this after generating the release build with EAS."
       />
 
       <MetricCard
         label="Release build time"
-        value="Pending"
+        value="21 min 22 s"
         helper="Measure this with PowerShell Measure-Command or a terminal timer."
       />
 
