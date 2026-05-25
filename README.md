@@ -716,7 +716,7 @@ En esta prueba, Flutter generó un APK de **46.4 MB**, mientras que React Native
 
 ### 14.2 Tiempo de respuesta API (Promedio)
 
-React Native registró un promedio dinámico acumulado de **98 ms**, mientras que Flutter registró **476 ms**. La implementación del cálculo del promedio móvil mitigó por completo los picos de red erráticos del pasado. En este set de pruebas concurrentes, el motor asíncrono y la gestión de peticiones HTTP en la capa nativa del puente de JavaScript de React Native procesaron e inyectaron las estructuras JSON de la API de TVMaze con una menor latencia que la infraestructura de cliente HTTP implementada en el dominio de Dart para Flutter.
+React Native registró un promedio dinámico acumulado de **98 ms**, mientras que Flutter registró **476 ms**. En este set de pruebas concurrentes, el motor asíncrono y la gestión de peticiones HTTP en la capa nativa del puente de JavaScript de React Native procesaron e inyectaron las estructuras JSON de la API de TVMaze con una menor latencia que la infraestructura de cliente HTTP implementada en el dominio de Dart para Flutter.
 
 ### 14.3 Cold Start
 
