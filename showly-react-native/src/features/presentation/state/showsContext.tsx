@@ -11,11 +11,12 @@ import {
   initialShowsState,
   showsReducer,
   ShowsState,
-} from "./showsReducer"; 
+} from "./showsReducer";
 import { TvMazeRemoteDataSource } from "../../shows/data/datasources/tvMazeRemoteDataSource";
 import { ShowRepositoryImpl } from "../../shows/data/repositories/showRepositoryImpl";
 import { GetShows } from "../../shows/domain/usecases/getShows";
-import { now, roundMetric } from "../../../core/utils/performance"; // Assuming you have a time utility for performance metrics
+import { now, roundMetric } from "../../../core/utils/performance";
+
 type ShowsContextValue = ShowsState & {
   loadShows: () => Promise<void>;
   createShow: (show: Omit<Show, "id">) => void;
@@ -37,22 +38,32 @@ export function ShowsProvider({ children }: ShowsProviderProps) {
 
   const getShowsUseCase = useMemo(() => {
     const dataSource = new TvMazeRemoteDataSource();
-    const repository = new ShowRepositoryImpl(dataSource);
-    return new GetShows(repository);
+    return new GetShows(new ShowRepositoryImpl(dataSource));
   }, []);
 
   async function loadShows() {
     try {
       dispatch({ type: "LOAD_START" });
 
+      if (typeof window !== "undefined" && window.performance) {
+        window.performance.mark("api-fetch-start");
+      }
+
       const requestStartedAt = now();
-      const shows = await getShowsUseCase.execute();
+
+      const loadedShows = await getShowsUseCase.execute();
+
       const requestEndedAt = now();
+
+      if (typeof window !== "undefined" && window.performance) {
+        window.performance.mark("api-fetch-end");
+        window.performance.measure("API Response Time", "api-fetch-start", "api-fetch-end");
+      }
 
       dispatch({
         type: "LOAD_SUCCESS",
         payload: {
-          shows,
+          shows: loadedShows,
           apiResponseTimeMs: roundMetric(requestEndedAt - requestStartedAt),
         },
       });
@@ -79,25 +90,15 @@ export function ShowsProvider({ children }: ShowsProviderProps) {
       id: Date.now(),
       isLocal: true,
     };
-
-    dispatch({
-      type: "CREATE_SHOW",
-      payload: newShow,
-    });
+    dispatch({ type: "CREATE_SHOW", payload: newShow });
   }
 
   function updateShow(show: Show) {
-    dispatch({
-      type: "UPDATE_SHOW",
-      payload: show,
-    });
+    dispatch({ type: "UPDATE_SHOW", payload: show });
   }
 
   function deleteShow(showId: number) {
-    dispatch({
-      type: "DELETE_SHOW",
-      payload: showId,
-    });
+    dispatch({ type: "DELETE_SHOW", payload: showId });
   }
 
   function getShowById(showId: number) {
@@ -124,10 +125,8 @@ export function ShowsProvider({ children }: ShowsProviderProps) {
 
 export function useShows() {
   const context = useContext(ShowsContext);
-
   if (!context) {
-    throw new Error("useShows must be used inside ShowsProvider.");
+    throw new Error("useShows must be used within a ShowsProvider");
   }
-
   return context;
 }

@@ -5,12 +5,17 @@ export type ShowsState = {
   isLoading: boolean;
   error: string | null;
   apiResponseTimeMs: number | null;
+  totalApiResponseTimeMs: number;
+  apiExecutionCount: number;
   coldStartTimeMs: number | null;
 };
 
 export type ShowsAction =
   | { type: "LOAD_START" }
-  | { type: "LOAD_SUCCESS"; payload: { shows: Show[]; apiResponseTimeMs: number } }
+  | {
+      type: "LOAD_SUCCESS";
+      payload: { shows: Show[]; apiResponseTimeMs: number };
+    }
   | { type: "LOAD_ERROR"; payload: string }
   | { type: "CREATE_SHOW"; payload: Show }
   | { type: "UPDATE_SHOW"; payload: Show }
@@ -22,12 +27,14 @@ export const initialShowsState: ShowsState = {
   isLoading: false,
   error: null,
   apiResponseTimeMs: null,
+  totalApiResponseTimeMs: 0,
+  apiExecutionCount: 0,
   coldStartTimeMs: null,
 };
 
 export function showsReducer(
   state: ShowsState,
-  action: ShowsAction
+  action: ShowsAction,
 ): ShowsState {
   switch (action.type) {
     case "LOAD_START":
@@ -37,13 +44,20 @@ export function showsReducer(
         error: null,
       };
 
-    case "LOAD_SUCCESS":
+    case "LOAD_SUCCESS": {
+      const newTotalTime =
+        state.totalApiResponseTimeMs + action.payload.apiResponseTimeMs;
+      const newCount = state.apiExecutionCount + 1;
+
       return {
         ...state,
         isLoading: false,
         shows: action.payload.shows,
-        apiResponseTimeMs: action.payload.apiResponseTimeMs,
+        totalApiResponseTimeMs: newTotalTime,
+        apiExecutionCount: newCount,
+        apiResponseTimeMs: Math.round(newTotalTime / newCount),
       };
+    }
 
     case "LOAD_ERROR":
       return {
@@ -62,7 +76,7 @@ export function showsReducer(
       return {
         ...state,
         shows: state.shows.map((show) =>
-          show.id === action.payload.id ? action.payload : show
+          show.id === action.payload.id ? action.payload : show,
         ),
       };
 

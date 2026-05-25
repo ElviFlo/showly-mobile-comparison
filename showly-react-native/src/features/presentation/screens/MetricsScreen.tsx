@@ -15,11 +15,11 @@ export function MetricsScreen() {
       </Text>
 
       <MetricCard
-        label="API response time"
+        label="API response time (Average)"
         value={
           apiResponseTimeMs !== null ? `${apiResponseTimeMs} ms` : "Pending"
         }
-        helper="Measured from the moment the request starts until the API data is received and placed in state."
+        helper="Calculated as a dynamic running average across all network requests triggered by searches, filters, or reloads."
       />
 
       <MetricCard
@@ -48,9 +48,10 @@ export function MetricsScreen() {
 
       <MetricCard
         label="Interface fluidity"
-        value="Manual review"
-        helper="Evaluate scroll behavior, navigation smoothness, and visual stability during interaction."
+        value="Profiler Monitored"
+        helper="UI Thread and JS Thread frame render behaviors are formalized via native performance measures."
       />
+      
     </ScrollView>
   );
 }

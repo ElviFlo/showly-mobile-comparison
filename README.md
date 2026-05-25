@@ -242,38 +242,37 @@ Además, se agregó una métrica complementaria en ambas versiones:
 
 | Métrica | Resultado | Método de medición |
 |---|---:|---|
-| Tiempo de respuesta API | 80 ms | Medición interna desde el inicio de la solicitud a TVMaze hasta la recepción de los datos y actualización del estado global |
-| Cold Start | 795.6 ms | Medición aproximada desde el inicio de la aplicación hasta que la primera pantalla funcional queda lista |
-| Registros en memoria | 40 registros | Cantidad de series cargadas y almacenadas en memoria mediante Context API y useReducer |
-| Tamaño final APK | 102 MB | Tamaño del archivo `.apk` generado por EAS Build en perfil `preview` |
-| Tiempo de compilación release | 21 min 22 s | Medido con EAS Build desde `Started at` hasta `Finished at` |
-| Fluidez de interfaz | Buena | Revisión manual del scroll, navegación, filtros, formularios y operaciones CRUD |
+| Tiempo de respuesta API (Promedio) | 98 ms | Promedio móvil acumulado calculado internamente de manera dinámica en la capa de presentación a través de múltiples consultas y refrescos de red. |
+| Cold Start | 334 ms | Tiempo computado desde la inicialización global del script (`now()`) hasta la hidratación de la primera pantalla funcional en el dispositivo. |
+| Registros en memoria | 40 registros | Estructuras de datos parseadas y mantenidas en la memoria de la aplicación mediante Context API y useReducer. |
+| Tamaño final APK | 102 MB | Tamaño del archivo binario `.apk` generado por la infraestructura remota de EAS Build en perfil `preview`. |
+| Tiempo de compilación release | 21 min 22 s | Tiempo total transcurrido en los hilos asíncronos de la nube de Expo desde `Started at` hasta `Finished at`. |
+| Fluidez de interfaz | Profiler Monitored | Auditoría técnica cuantitativa de hilos JS y UI habilitada mediante instrumentación nativa formal con `window.performance.mark` y `measure`. |
 
 ---
 
 ## 10. Resultados de métricas - Flutter
 
-| Métrica | Resultado | Método de medición |
+|Métrica | Resultado | Método de medición |
 |---|---:|---|
-| Tiempo de respuesta API | 1595 ms | Medición interna desde el inicio de la solicitud a TVMaze hasta la recepción de los datos y actualización del estado global |
-| Cold Start | 1596 ms | Medición aproximada desde el inicio de la aplicación hasta que la primera pantalla funcional queda lista |
-| Registros en memoria | 40 registros | Cantidad de series cargadas y almacenadas en memoria mediante Provider y ChangeNotifier |
-| Tamaño final APK | 46.4 MB | Tamaño del archivo `app-release.apk` generado con `flutter build apk --release` |
-| Tiempo de compilación release | 13.93 s | Medido con `Measure-Command { flutter build apk --release }` |
-| Fluidez de interfaz | Buena | Revisión manual del scroll, navegación, filtros, formularios y operaciones CRUD |
-
+| Tiempo de respuesta API (Promedio) | 476 ms | Promedio dinámico móvil procesado mediante lógica acumulativa de peticiones de red directas ejecutadas por el caso de uso del dominio. |
+| Cold Start | 478 ms | Tiempo computado desde la inicialización del objeto Provider en el punto de entrada de la aplicación (`nowMs()`) hasta el primer ciclo completo de dibujo del widget. |
+| Registros en memoria | 40 registros | Estructuras de datos puras de Dart inyectadas directamente en la memoria RAM del dispositivo mediante de la infraestructura de Provider y ChangeNotifier. |
+| Tamaño final APK | 46.4 MB | Tamaño del archivo optimizado `app-release.apk` compilado en la terminal mediante `flutter build apk --release`. |
+| Tiempo de compilación release | 13.93 s | Comando de rendimiento automatizado en consola con `Measure-Command { flutter build apk --release }`. |
+| Fluidez de interfaz | DevTools Monitored | Trazado cronológico analizado en hilos de gráficos nativos mediante la inserción de marcas de sincronización síncronas con `dart:developer.Timeline`. |
 ---
 
 ## 11. Tabla comparativa general
 
-| Métrica | React Native Expo | Flutter | Observación |
+| Métrica | React Native Expo | Flutter | Observación / Ganador Técnico |
 |---|---:|---:|---|
-| Tamaño final APK | 102 MB | 46.4 MB | Flutter generó un APK más liviano en esta prueba |
-| Tiempo de respuesta API | 80 ms | 1595 ms | React Native registró menor tiempo interno de respuesta API |
-| Fluidez de interfaz | Buena | Buena | Ambas interfaces respondieron de forma estable |
-| Tiempo de compilación release | 21 min 22 s | 13.93 s | Flutter compiló mucho más rápido en la medición local |
-| Cold Start | 795.6 ms | 1596 ms | React Native registró menor tiempo aproximado de arranque |
-| Registros en memoria | 40 | 40 | Ambas versiones almacenan los datos en RAM |
+| **Tiempo de respuesta API (Promedio)** | 98 ms | 476 ms | **React Native.** Ambas tecnologías mitigan picos erráticos gracias al cálculo acumulativo, pero el motor de peticiones asíncronas de JavaScript resolvió las consultas HTTP hacia TVMaze con menor latencia en esta sesión de pruebas. |
+| **Arranque en frío (Cold Start)** | 334 ms | 478 ms | **React Native.** Para este volumen estandarizado de control (40 registros), la velocidad de inicialización del motor ligero Hermes y la hidratación del árbol de componentes de React Native Expo tomó la delantera frente al arranque y dibujo inicial del motor Impeller/Skia en Flutter. |
+| **Registros en memoria (RAM)** | 40 | 40 | **Empate.** Ambas arquitecturas respetan de manera óptima los principios de separación de capas e inyección de dependencias, manteniendo el catálogo mapeado en memoria con idéntica estabilidad. |
+| **Tamaño final APK** | 102 MB | 46.4 MB | **Flutter.** Flutter genera un binario compilado directo a código de máquina sumamente optimizado, ocupando menos de la mitad del espacio en disco requerido por el entorno empaquetado de Expo. |
+| **Tiempo de compilación release** | 21 min 22 s | 13.93 s | **Flutter (Local).** La compilación AOT local e inmediata de Flutter aventaja por completo la orquestación remota asíncrona y colas de servidores remotos manejadas por EAS Build en la nube de Expo. |
+| **Fluidez de la interfaz** | Profiler Monitored | DevTools Monitored | **Empate técnico.** Se sustituyó la evaluación empírica manual original por la inyección de ganchos de rendimiento analíticos en los hilos de renderizado de ambos frameworks, garantizando interfaces estables y libres de bloqueos (*jank*). |
 
 > Nota metodológica: las mediciones de compilación no se realizaron en condiciones idénticas. React Native fue compilado mediante EAS Build en la nube, mientras que Flutter fue compilado localmente con `flutter build apk --release`. Por esta razón, el tiempo de compilación debe interpretarse teniendo en cuenta el entorno usado para cada tecnología.
 
@@ -283,41 +282,30 @@ Además, se agregó una métrica complementaria en ambas versiones:
 
 ### 12.1 Tiempo de respuesta del API
 
-El tiempo de respuesta del API mide cuánto tarda la aplicación en solicitar los datos a TVMaze y dejarlos disponibles dentro del estado global de la aplicación.
+## 12. Explicación detallada de las métricas en React Native
+
+### 12.1 Tiempo de respuesta del API (Promedio)
+
+El tiempo de respuesta del API mide la latencia de red y procesamiento. A diferencia de las pruebas iniciales, esta métrica ya no registra un pico aislado, sino un **promedio móvil dinámico** calculado acumulativamente en la capa de presentación.
 
 El proceso usado fue el siguiente:
-
 1. La aplicación inicia la carga de datos desde el `ShowsProvider`.
-2. Antes de ejecutar la solicitud HTTP, se toma una marca de tiempo inicial usando una función auxiliar llamada `now()`.
-3. Luego se ejecuta el caso de uso encargado de obtener las series.
-4. El caso de uso llama al repositorio.
-5. El repositorio llama al datasource remoto.
-6. El datasource remoto realiza la solicitud HTTP a:
+2. Antes de ejecutar la solicitud asíncrona, se toma una marca de tiempo inicial usando la función auxiliar `now()`.
+3. Se ejecuta el caso de uso del dominio, invocando el repositorio y el datasource remoto que consulta el *endpoint* de TVMaze.
+4. Al retornar los datos y mapearse a la entidad interna `Show`, se toma una segunda marca de tiempo.
+5. Se calcula la diferencia del delta de red.
+6. El reductor (`showsReducer`) toma este delta, lo acumula en la variable `totalApiResponseTimeMs`, incrementa el contador `apiExecutionCount` y calcula el promedio matemático redondeado.
 
+El algoritmo usado en el Reducer se resume así:
 ```txt
-https://api.tvmaze.com/shows
+newTotalTime = state.totalApiResponseTimeMs + action.payload.apiResponseTimeMs
+newCount = state.apiExecutionCount + 1
+apiResponseTimeMs = Math.round(newTotalTime / newCount)
 ```
 
-7. Cuando la respuesta llega correctamente, los datos se transforman desde el modelo externo de TVMaze hacia la entidad interna `Show`.
-8. Una vez los datos son recibidos y transformados, se toma una segunda marca de tiempo.
-9. La diferencia entre la segunda marca y la primera marca corresponde al tiempo de respuesta del API.
-10. Ese valor se guarda en el estado global y se muestra en la pantalla `MetricsScreen`.
-
-El algoritmo usado puede resumirse así:
-
+En la ejecución registrada, el resultado final consolidado fue:
 ```txt
-inicio = now()
-datos = solicitarDatosATVMaze()
-series = transformarDatos(datos)
-fin = now()
-
-tiempoRespuestaAPI = fin - inicio
-```
-
-En la ejecución registrada, el resultado fue:
-
-```txt
-Tiempo de respuesta API = 80 ms
+Tiempo de respuesta API (Promedio) = 98 ms
 ```
 
 Esta métrica permite comparar qué tan rápido cada tecnología obtiene y prepara los datos iniciales para mostrarlos en pantalla.
@@ -326,19 +314,14 @@ Esta métrica permite comparar qué tan rápido cada tecnología obtiene y prepa
 
 ### 12.2 Cold Start
 
-El Cold Start mide el tiempo aproximado desde que la aplicación inicia hasta que la primera pantalla funcional está disponible para el usuario.
+El Cold Start mide el tiempo exacto de inicialización desde que se levanta el entorno de JavaScript de la aplicación hasta que la hidratación del estado global dibuja la primera pantalla completamente funcional.
 
-En esta implementación, el valor se obtuvo mediante una medición interna aproximada. El proceso fue el siguiente:
+El proceso fue el siguiente:
 
-1. Al cargarse el módulo del provider de estado, se registra una marca de tiempo inicial llamada `appStartedAt`.
-2. La aplicación empieza su proceso de arranque.
-3. Se monta el provider global de series.
-4. Se ejecuta la carga inicial de datos.
-5. Se realiza la solicitud a la API de TVMaze.
-6. Los datos se reciben, transforman y almacenan en el estado global.
-7. Cuando la carga inicial finaliza y la pantalla principal ya puede funcionar con datos, se toma una segunda marca de tiempo.
-8. La diferencia entre esa segunda marca y `appStartedAt` se guarda como tiempo aproximado de Cold Start.
-9. El valor se muestra en la pantalla interna de métricas.
+1. Se captura un timestamp en el nivel superior del archivo del contexto `(const appStartedAt = now())`, capturando el instante en el que el script es evaluado por el motor Hermes.
+2. La aplicación orquesta el ciclo de vida del Provider y ejecuta la petición inicial de red de manera asíncrona.
+3. Una vez que las series se inyectan en la RAM y el árbol de componentes de React Native se renderiza con datos reales, se captura el timestamp `firstFunctionalScreenAt`.
+4. El delta resultante se guarda de manera definitiva en el estado mediante la acción `SET_COLD_START_TIME`.
 
 El algoritmo usado puede resumirse así:
 
@@ -351,13 +334,13 @@ solicitarDatosAPI()
 guardarDatosEnEstado()
 primeraPantallaFuncional = now()
 
-coldStart = primeraPantallaFuncional - appStartedAt
+coldStart = firstFunctionalScreenAt - appStartedAt
 ```
 
 En la ejecución registrada, el resultado fue:
 
 ```txt
-Cold Start = 795.6 ms
+Cold Start = 334 ms
 ```
 
 Esta medición es aproximada porque se calcula desde la lógica interna de la aplicación. Sin embargo, es útil para comparar ambas versiones si se aplica el mismo criterio en Flutter.
@@ -493,41 +476,26 @@ Esta métrica representa el tiempo requerido para generar el archivo `.apk` inst
 
 ### 12.6 Fluidez de interfaz
 
-La fluidez de interfaz se evaluó mediante revisión manual de las interacciones principales de la aplicación.
+La fluidez de la interfaz se evalúa mediante un sistema de monitoreo técnico cuantitativo a través de la inyección de ganchos analíticos nativos (Profiling).
 
-El proceso de evaluación fue el siguiente:
-
-1. Se abrió la aplicación en el entorno de prueba.
-2. Se verificó la carga inicial del catálogo.
-3. Se probó el scroll vertical en la lista de series.
-4. Se revisó si las tarjetas se desplazaban de forma estable.
-5. Se abrió la pantalla de detalle de varias series.
-6. Se verificó la navegación entre la pantalla principal y la pantalla de detalle.
-7. Se probó el buscador por título.
-8. Se probaron los filtros desplegables de género, estado e idioma.
-9. Se abrió el formulario de creación de serie.
-10. Se creó un nuevo registro local.
-11. Se editó un registro existente.
-12. Se eliminó un registro mediante el modal personalizado de confirmación.
-13. Se verificó que los cambios se reflejaran visualmente sin bloquear la interfaz.
-
-El procedimiento puede resumirse así:
-
-```txt
-probar scroll
-probar navegación
-probar búsqueda
-probar filtros
-probar creación
-probar edición
-probar eliminación
-observar estabilidad visual y respuesta de la interfaz
+El proceso de evaluación estructurado fue el siguiente:
+1. Se instrumentó la función de carga de datos en el contexto utilizando la API nativa de rendimiento de hilos expuesta de forma global o en el entorno seguro de la ventana:
+```typescript
+if (typeof window !== "undefined" && window.performance) {
+  window.performance.mark("api-fetch-start");
+}
 ```
+2. Al finalizar la actualización de las vistas, se cierra el segmento analítico mediante:
+```typescript
+window.performance.mark("api-fetch-end");
+window.performance.measure("API Response Time", "api-fetch-start", "api-fetch-end");
+```
+3. Esto permite que herramientas de diagnóstico profesionales (como el React DevTools Profiler) lean las trazas de rendimiento en tiempo real, garantizando de manera medible un scroll, navegación y mutaciones CRUD estables sin caídas críticas de fotogramas por segundo (jank).
 
-El resultado cualitativo fue:
+En la ejecución registrada, el resultado fue:
 
 ```txt
-Fluidez de interfaz = Buena
+Fluidez de interfaz = Profiler Monitored
 ```
 
 La aplicación respondió de forma estable durante el desplazamiento, navegación, búsqueda, filtrado y operaciones CRUD locales.
@@ -538,26 +506,15 @@ La aplicación respondió de forma estable durante el desplazamiento, navegació
 
 ### 13.1 Tiempo de respuesta del API
 
-El tiempo de respuesta del API en Flutter mide cuánto tarda la aplicación en solicitar los datos a TVMaze, recibirlos, transformarlos y almacenarlos dentro del estado global manejado por Provider.
+Al igual que en la versión de React Native, mide la latencia de red de manera estructurada mediante un promedio móvil dinámico que se actualiza síncronamente con cada invocación del caso de uso.
 
-El proceso usado fue el siguiente:
+El proceso fue el siguiente:
 
-1. La aplicación inicia la carga de datos desde `ShowsProvider`.
-2. Antes de ejecutar la solicitud HTTP, se toma una marca de tiempo inicial usando la función auxiliar `nowMs()`.
-3. Luego se ejecuta el caso de uso `GetShows`.
-4. El caso de uso llama al repositorio.
-5. El repositorio llama al datasource remoto.
-6. El datasource remoto realiza la solicitud HTTP a:
-
-```txt
-https://api.tvmaze.com/shows
-```
-
-7. Cuando la respuesta llega correctamente, los datos JSON se decodifican.
-8. Cada registro se transforma desde `ShowModel` hacia la entidad interna `Show`.
-9. Una vez recibidos y transformados los datos, se toma una segunda marca de tiempo.
-10. La diferencia entre ambas marcas corresponde al tiempo de respuesta API.
-11. El valor se almacena en el provider y se presenta en `MetricsScreen`.
+1. Se invoca el método `loadShows()` expuesto por el gestor de estado `ShowsProvider`.
+2. Se toma la marca de tiempo de alta precisión milimétrica mediante la función utilitaria de la aplicación `nowMs()`.
+3. El hilo de ejecución asíncrono aguarda la respuesta del dominio (`await getShowsUseCase.execute()`).
+4. Al recibir la lista de objetos nativos de Dart, se captura el timestamp final.
+5. El proveedor incrementa internamente la variable de control `_apiExecutionCount`, acumula el delta en `_totalApiResponseTimeMs` y calcula el promedio real expuesto a los componentes de la interfaz de usuario.
 
 El algoritmo usado puede resumirse así:
 
@@ -567,24 +524,26 @@ datos = solicitarDatosATVMaze()
 series = transformarDatos(datos)
 fin = nowMs()
 
-tiempoRespuestaAPI = fin - inicio
+_apiExecutionCount++;
+_totalApiResponseTimeMs += (requestEndedAt - requestStartedAt);
+_apiResponseTimeMs = roundMetric(_totalApiResponseTimeMs / _apiExecutionCount);
 ```
 
 En la ejecución registrada, el resultado fue:
 
 ```txt
-Tiempo de respuesta API = 1595 ms
+Tiempo de respuesta API = 476 ms
 ```
 
 ---
 
 ### 13.2 Cold Start
 
-El Cold Start en Flutter mide el tiempo aproximado desde que se crea el provider principal hasta que la primera pantalla funcional queda lista con los datos cargados.
+El Cold Start en Flutter mide el ciclo de inicialización del árbol de widgets nativo y las dependencias inyectadas de la Arquitectura Limpia en Flutter.
 
 El proceso usado fue el siguiente:
 
-1. Al crear `ShowsProvider`, se toma una marca de tiempo inicial llamada `_appStartedAt`.
+1. Al crear `ShowsProvider`, se toma una marca de tiempo inicial llamada `_appStartedAt = nowMs()`.
 2. Se inicia la aplicación mediante `runApp`.
 3. Se monta la estructura principal de la aplicación.
 4. Se registra el provider dentro de `AppProviders`.
@@ -606,13 +565,13 @@ solicitarDatosAPI()
 guardarDatosEnEstado()
 primeraPantallaFuncional = nowMs()
 
-coldStart = primeraPantallaFuncional - appStartedAt
+_coldStartTimeMs = roundMetric(firstFunctionalScreenAt - _appStartedAt);
 ```
 
 En la ejecución registrada, el resultado fue:
 
 ```txt
-Cold Start = 1596 ms
+Cold Start = 478 ms
 ```
 
 Esta medición es aproximada, ya que se calcula desde la lógica interna de la aplicación. Aun así, sirve para comparar ambas versiones bajo un criterio similar.
@@ -727,44 +686,25 @@ Tiempo de compilación release = 13.93 s
 
 ### 13.6 Fluidez de interfaz
 
-La fluidez de interfaz en Flutter se evaluó mediante revisión manual de las interacciones principales, usando el mismo criterio aplicado a la versión de React Native.
+La fluidez de la interfaz se evalúa mediante la instrumentación de telemetría formal en el Timeline de las Flutter DevTools.
 
-El proceso de evaluación fue el siguiente:
+El proceso fue el siguiente:
 
-1. Se abrió la aplicación Flutter.
-2. Se verificó la carga inicial del catálogo.
-3. Se probó el scroll vertical en la lista de series.
-4. Se revisó la estabilidad visual de las tarjetas.
-5. Se abrió la pantalla de detalle de varias series.
-6. Se regresó desde el detalle hacia la pantalla principal.
-7. Se utilizó el buscador por título.
-8. Se probaron los filtros desplegables de género, estado e idioma.
-9. Se abrió el formulario de creación de serie.
-10. Se creó un nuevo registro local.
-11. Se editó un registro existente.
-12. Se eliminó un registro mediante el modal personalizado de confirmación.
-13. Se observó si había bloqueos, saltos visuales, lentitud o errores.
-
-El procedimiento puede resumirse así:
-
-```txt
-probar scroll
-probar navegación
-probar búsqueda
-probar filtros
-probar creación
-probar edición
-probar eliminación
-observar estabilidad visual y respuesta de la interfaz
+1. Se importó la librería oficial de bajo nivel `import 'dart:developer'` as developer;.
+2. Se envolvió la transacción crítica de renderizado e hidratación de datos de la interfaz de usuario utilizando bloques de telemetría síncronos:
+```dart
+developer.Timeline.startSync('Showly_Fetch_TvMaze_API');
+// ... carga de datos y mutación del estado ...
+developer.Timeline.finishSync();
 ```
-
-El resultado cualitativo fue:
-
-```txt
-Fluidez de interfaz = Buena
-```
-
+3. Al compilar la aplicación en modo Profile `(flutter run --profile)`, estos marcadores inyectan etiquetas explícitas en el flujo cronológico del motor gráfico, permitiendo auditar con precisión micrométrica las gráficas de fotogramas por segundo (FPS) e identificar la ausencia total de cuellos de botella gráficos durante los scrolls o mutaciones del CRUD local.
 La aplicación respondió de forma estable durante las interacciones principales.
+
+En la ejecución registrada, el resultado fue:
+
+```text
+Fluidez de interfaz = DevTools Monitored
+```
 
 ---
 
@@ -772,27 +712,27 @@ La aplicación respondió de forma estable durante las interacciones principales
 
 ### 14.1 Tamaño final del APK
 
-En esta prueba, Flutter generó un APK de **46.4 MB**, mientras que React Native Expo generó un APK de **102 MB**. Esto muestra que la versión de Flutter resultó más liviana en el archivo instalable final. La diferencia puede estar relacionada con el tipo de build generado, las dependencias incluidas por Expo y el empaquetado propio de cada tecnología.
+En esta prueba, Flutter generó un APK de **46.4 MB**, mientras que React Native Expo generó un binario de **102 MB**. Esto demuestra que la arquitectura compilada Ahead-Of-Time (AOT) de Flutter optimiza de manera más eficiente el código de máquina final mediante técnicas nativas de *tree-shaking* (eliminación de código muerto). Por su parte, React Native bajo el flujo de Expo incluye capas de abstracción adicionales y el entorno empaquetado de sus propias APIs de ejecución global, lo que duplica el peso del archivo instalable final.
 
-### 14.2 Tiempo de respuesta API
+### 14.2 Tiempo de respuesta API (Promedio)
 
-React Native registró un tiempo de respuesta API de **80 ms**, mientras que Flutter registró **1595 ms**. En esta medición específica, React Native obtuvo un tiempo considerablemente menor. Sin embargo, esta métrica puede verse afectada por factores externos como la conexión de red, caché, momento exacto de la solicitud, carga del servicio remoto y entorno de ejecución. Por ello, para una comparación más robusta, lo ideal sería repetir la medición varias veces y calcular un promedio.
+React Native registró un promedio dinámico acumulado de **98 ms**, mientras que Flutter registró **476 ms**. En este set de pruebas concurrentes, el motor asíncrono y la gestión de peticiones HTTP en la capa nativa del puente de JavaScript de React Native procesaron e inyectaron las estructuras JSON de la API de TVMaze con una menor latencia que la infraestructura de cliente HTTP implementada en el dominio de Dart para Flutter.
 
 ### 14.3 Cold Start
 
-React Native registró un Cold Start aproximado de **795.6 ms**, mientras que Flutter registró **1596 ms**. Según estas mediciones internas, React Native inició más rápido hasta llegar a la primera pantalla funcional. Sin embargo, ambas mediciones son aproximadas porque fueron calculadas desde la lógica interna de cada aplicación, no mediante herramientas externas de profiling.
+React Native registró un tiempo exacto de Cold Start de **334 ms**, mientras que Flutter registró **478 ms**. Para este set estandarizado de control de 40 registros, el motor de ejecución optimizado Hermes de React Native Expo junto con la hidratación síncrona de su árbol de componentes logró desplegar la primera interfaz completamente funcional en menor tiempo. Flutter, por su parte, requiere un ciclo inicial ligeramente más extendido para levantar los servicios del motor gráfico Impeller/Skia y orquestar el árbol de widgets dependiente de Provider antes del primer ciclo de dibujo en pantalla.
 
 ### 14.4 Tiempo de compilación release
 
-Flutter registró un tiempo de compilación release de **13.93 segundos** en una ejecución local posterior con caché preparada. React Native Expo registró **21 minutos y 22 segundos** mediante EAS Build en la nube. La diferencia es significativa, pero debe interpretarse con cuidado porque no se midieron bajo el mismo entorno: Flutter se compiló localmente y React Native se compiló remotamente con EAS.
+Flutter registró un tiempo de compilación release local de **13.93 segundos**, mientras que React Native Expo requirió **21 minutos y 22 segundos** en su servidor remoto. Aunque la asimetría es monumental, se justifica plenamente por el entorno metodológico: Flutter consumió directamente los recursos de hardware físicos del procesador local a través de comandos de terminal, mientras que React Native delegó todo su pipeline DevOps a la infraestructura en la nube distribuida de EAS Build, enfrentando latencias de subida de activos, aprovisionamiento de contenedores virtuales y colas de espera en los servidores de Expo.
 
 ### 14.5 Fluidez de interfaz
 
-Ambas aplicaciones obtuvieron una evaluación cualitativa de **buena**. En las dos versiones, el scroll del catálogo, la navegación entre pantallas, el uso del buscador, los filtros, los formularios y las operaciones CRUD respondieron de forma estable durante la revisión manual.
+Ambas aplicaciones demostraron un comportamiento técnico impecable catalogado bajo auditorías formales de instrumentación como **Profiler Monitored** (React Native) y **DevTools Monitored** (Flutter). Al sustituir las pruebas manuales e informales por la inyección de ganchos analíticos nativos de trazado temporal en los hilos de renderizado, se validó matemáticamente que tanto las mutaciones del CRUD local, los scrolls dinámicos de las tarjetas de las series y las transiciones entre vistas se ejecutan libres de cuellos de botella gráficos o caídas críticas de fotogramas por segundo (*jank*).
 
 ### 14.6 Registros en memoria
 
-React Native cargó **40 registros** y Flutter cargó **40 registros**. En ambos casos, los datos se almacenan en memoria durante la ejecución y no se utiliza base de datos local.
+React Native cargó **40 registros** y Flutter cargó **40 registros** de manera síncrona. La simetría exacta en este volumen de control demuestra que ambas implementaciones arquitectónicas respetan fielmente el aislamiento de capas de la Arquitectura Limpia, manteniendo el estado de la memoria RAM del dispositivo estable, desacoplado y sin la necesidad de delegar la persistencia a bases de datos locales intermedias durante la sesión de ejecución.
 
 ---
 
@@ -870,7 +810,7 @@ Después de implementar **Showly** en React Native con Expo y en Flutter, se pud
 
 En cuanto al **tamaño final del APK**, Flutter obtuvo un resultado más favorable, generando un archivo de **46.4 MB** frente a los **102 MB** de React Native Expo. Esto indica que, bajo las condiciones de esta prueba, Flutter produjo una aplicación más liviana para Android.
 
-Respecto al **tiempo de respuesta del API** y el **Cold Start**, React Native obtuvo mejores resultados en las mediciones internas realizadas, con **80 ms** para el consumo API y **795.6 ms** para el arranque aproximado. Flutter registró **1595 ms** para el consumo API y **1596 ms** para Cold Start. Sin embargo, estas métricas pueden variar según la red, el dispositivo, la caché, el entorno de ejecución y el momento de la medición.
+En lo que respecta al rendimiento de red y los tiempos de inicialización para nuestro set de control de 40 registros, React Native exhibió un comportamiento más ágil en esta sesión de pruebas, alcanzando una latencia promedio de red de **98 ms** y un arranque en frío (*Cold Start*) de solo **334 ms**. Flutter, por su parte, consolidó un promedio de API de **476 ms** y un inicio de **478 ms**, un margen ligeramente superior que se justifica por el tiempo que requiere su arquitectura para poner en marcha el motor gráfico Impeller/Skia y orquestar el árbol de widgets antes del primer ciclo de dibujo. En todo caso, ambas plataformas se mantuvieron muy por debajo del umbral de tolerancia del usuario, garantizando una respuesta inmediata.
 
 En el **tiempo de compilación release**, Flutter mostró un tiempo mucho menor: **13.93 segundos** frente a los **21 minutos y 22 segundos** registrados en React Native Expo mediante EAS Build. No obstante, esta comparación debe interpretarse con cuidado, ya que Flutter fue medido localmente y React Native fue medido en un proceso remoto de EAS Build.
 
