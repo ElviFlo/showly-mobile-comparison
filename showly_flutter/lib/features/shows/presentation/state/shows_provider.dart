@@ -1,3 +1,5 @@
+import 'dart:developer'
+    as developer;
 import 'package:flutter/material.dart';
 
 import '../../../../core/utils/performance.dart';
@@ -27,6 +29,9 @@ class ShowsProvider extends ChangeNotifier {
   List<Show> _shows = [];
   bool _isLoading = false;
   String? _error;
+
+  double _totalApiResponseTimeMs = 0.0;
+  int _apiExecutionCount = 0;
   double? _apiResponseTimeMs;
   double? _coldStartTimeMs;
 
@@ -42,12 +47,21 @@ class ShowsProvider extends ChangeNotifier {
       _error = null;
       notifyListeners();
 
+      developer.Timeline.startSync('Showly_Fetch_TvMaze_API');
+
       final requestStartedAt = nowMs();
       final loadedShows = await getShowsUseCase.execute();
       final requestEndedAt = nowMs();
 
+      developer.Timeline.finishSync();
+
       _shows = loadedShows;
-      _apiResponseTimeMs = roundMetric(requestEndedAt - requestStartedAt);
+
+      _apiExecutionCount++;
+      _totalApiResponseTimeMs += (requestEndedAt - requestStartedAt);
+      _apiResponseTimeMs = roundMetric(
+        _totalApiResponseTimeMs / _apiExecutionCount,
+      );
 
       final firstFunctionalScreenAt = nowMs();
       _coldStartTimeMs = roundMetric(firstFunctionalScreenAt - _appStartedAt);
@@ -57,6 +71,11 @@ class ShowsProvider extends ChangeNotifier {
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
+
+      try {
+        developer.Timeline.finishSync();
+      } catch (_) {}
+
       notifyListeners();
     }
   }
@@ -74,13 +93,12 @@ class ShowsProvider extends ChangeNotifier {
       id: DateTime.now().millisecondsSinceEpoch,
       isLocal: true,
     );
-
     _shows = createShowUseCase.execute(_shows, newShow);
     notifyListeners();
   }
 
-  void updateShow(Show updatedShow) {
-    _shows = updateShowUseCase.execute(_shows, updatedShow);
+  void updateShow(Show show) {
+    _shows = updateShowUseCase.execute(_shows, show);
     notifyListeners();
   }
 

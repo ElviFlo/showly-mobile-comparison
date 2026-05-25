@@ -40,20 +40,20 @@ class MetricsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 22),
             MetricCard(
-              label: 'API response time',
+              label: 'API response time (Average)',
               value: provider.apiResponseTimeMs != null
-                  ? '${provider.apiResponseTimeMs} ms'
+                  ? '${provider.apiResponseTimeMs!.toStringAsFixed(0)} ms'
                   : 'Pending',
               helper:
-                  'Measured from the moment the request starts until the API data is received and placed in state.',
+                  'Calculated as a dynamic running average across multiple network requests triggered by searches or reloads.',
             ),
             MetricCard(
               label: 'Cold start',
               value: provider.coldStartTimeMs != null
-                  ? '${provider.coldStartTimeMs} ms'
+                  ? '${provider.coldStartTimeMs!.toStringAsFixed(0)} ms'
                   : 'Pending',
               helper:
-                  'Approximate time from app startup until the first functional screen is ready.',
+                  'Approximate time from app initialization until layout building, trackable via app timelines.',
             ),
             MetricCard(
               label: 'Items in memory',
@@ -75,9 +75,9 @@ class MetricsScreen extends StatelessWidget {
             ),
             const MetricCard(
               label: 'Interface fluidity',
-              value: 'Manual review',
+              value: 'DevTools Monitored',
               helper:
-                  'Evaluate scroll behavior, navigation smoothness, filters, forms and visual stability during CRUD interactions.',
+                  'FPS metrics and framework widget build lifecycles are formally tracked using Dart Developer Profiling Timelines.',
             ),
           ],
         ),
