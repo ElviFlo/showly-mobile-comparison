@@ -1,4 +1,4 @@
-# Showly Mobile Comparison
+# <img width="3%" alt="showly" src="https://github.com/user-attachments/assets/cb58c436-e2c8-45e4-b005-d799b6e8e109"/> Showly Mobile Comparison
 
 **Showly** es una aplicación móvil de catálogo de series desarrollada con dos tecnologías distintas: **React Native con Expo** y **Flutter**. El objetivo del proyecto es implementar la misma aplicación en ambas plataformas, usando las mismas funcionalidades, estructura general y lógica de negocio, para luego comparar su comportamiento técnico mediante métricas de rendimiento, tamaño, compilación y experiencia de uso.
 
@@ -10,6 +10,9 @@ showly-mobile-comparison/
 ├── showly-flutter/
 └── README.md
 ```
+<br/>
+
+**Demo de las aplicaciones:** https://youtu.be/dMfKSy-xGzo
 
 ---
 
